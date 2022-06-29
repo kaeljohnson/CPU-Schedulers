@@ -1,2 +1,2 @@
 # CPU-Schedulers
-Python, C, C++ versions of a cpu scheduler
+Python, and C++ versions of a cpu scheduler
