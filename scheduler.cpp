@@ -128,8 +128,8 @@ void roundRobbin(vector<Process> processes, int timeQuantum) {
   vector<Process> processQueue;
   int time = 0;
 
-  while (processes.size()) {
-    if (processes[0].arrivalTime <= time) {
+  while (processes.size() || processQueue.size()) {
+    if (processes.size() && processes[0].arrivalTime <= time) {
       processQueue.push_back(processes[0]);
       processes.erase(processes.begin());
     } else if (!processQueue.size()) {
@@ -138,10 +138,14 @@ void roundRobbin(vector<Process> processes, int timeQuantum) {
     }
 
     Process &currProcess = processQueue[0];
+
+    int timeQorTimeRemainingLower = currProcess.timeRemaining < timeQuantum ? currProcess.timeRemaining : timeQuantum;
+
+    time += timeQorTimeRemainingLower;
+    currProcess.timeRemaining -= timeQorTimeRemainingLower;
     
-    time+= (currProcess.timeRemaining < timeQuantum ? currProcess.timeRemaining : timeQuantum);
-    currProcess.timeRemaining -= (currProcess.timeRemaining < timeQuantum ? currProcess.timeRemaining : timeQuantum);
-    display.push_back({time, currProcess.pid, timeQuantum, currProcess.timeRemaining});
+    display.push_back({time, currProcess.pid, timeQorTimeRemainingLower, currProcess.timeRemaining});
+
     if (currProcess.timeRemaining > 0) {
       processQueue.push_back(currProcess);
     }
