@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <iomanip>
 
 using namespace std;
 
@@ -19,8 +20,6 @@ void getNumberFromString(string &processesString, vector<int> &vecOfNums);
 void parseFileToString(string &processesString, ifstream &processesFile);
 
 
-
-
 class GantChart {
   public:
     vector<vector<int>> m_processStream;
@@ -30,9 +29,13 @@ class GantChart {
     }
 
     void printChart() {
-      cout << "times   |    pid    |   duration   |    time remaining\n";
+      cout << "        times      |     pid     |   duration  |   time remaining\n";
+      cout << "-------------------------------------------------------------\n";
       for (auto p : m_processStream) {
-        cout << p[0] << "       |     " << p[1] << "        |    " << p[2] << "   |          " << p[3] << "\n";
+        cout << setw(9) << p[1]<< setw(2) << "-" << setw(2) << p[0] << setw(7) 
+             << "|" << setw(7) << p[2] << setw(7) 
+             << "|" << setw(7) << p[3] << setw(7) 
+             << "|" << setw(7) << p[4] << "\n";
       }
     }
 };
@@ -113,7 +116,7 @@ void firstComeFirstServe(vector<Process> processes) {
   int duration = 0;
   for (auto process : fcfsProcesses) {
     duration = process.burstTime;
-    gant.push_back({time, process.pid, duration, 0});
+    gant.push_back({time, 0, process.pid, duration, 0});
     
     time += duration;
   }
@@ -129,11 +132,14 @@ void roundRobbin(vector<Process> processes, int timeQuantum) {
   int time = 0;
 
   while (processes.size() || processQueue.size()) {
+    
     if (processes.size() && processes[0].arrivalTime <= time) {
       processQueue.push_back(processes[0]);
       processes.erase(processes.begin());
-    } else if (!processQueue.size()) {
+    } 
+    if (!processQueue.size()) {
       time+=timeQuantum;
+      display.push_back({time, time-timeQuantum+1, -1, -1, -1});
       continue;
     }
 
@@ -141,10 +147,10 @@ void roundRobbin(vector<Process> processes, int timeQuantum) {
 
     int timeQorTimeRemainingLower = currProcess.timeRemaining < timeQuantum ? currProcess.timeRemaining : timeQuantum;
 
-    time += timeQorTimeRemainingLower;
+    time += timeQuantum;
     currProcess.timeRemaining -= timeQorTimeRemainingLower;
     
-    display.push_back({time, currProcess.pid, timeQorTimeRemainingLower, currProcess.timeRemaining});
+    display.push_back({time, time-timeQuantum+1, currProcess.pid, timeQorTimeRemainingLower, currProcess.timeRemaining});
 
     if (currProcess.timeRemaining > 0) {
       processQueue.push_back(currProcess);
