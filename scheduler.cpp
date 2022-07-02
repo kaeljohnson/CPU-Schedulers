@@ -23,19 +23,31 @@ void parseFileToString(string &processesString, ifstream &processesFile);
 class GantChart {
   public:
     vector<vector<int>> m_processStream;
+    string m_type;
 
-    GantChart(vector<vector<int>> &processStream) {
+    GantChart(vector<vector<int>> &processStream, string type) {
       m_processStream = processStream;
+      m_type = type;
     }
 
     void printChart() {
       cout << "        times      |     pid     |   duration  |   time remaining\n";
       cout << "-------------------------------------------------------------\n";
-      for (auto p : m_processStream) {
-        cout << setw(9) << p[1]<< setw(2) << "-" << setw(2) << p[0] << setw(7) 
+      if (m_type == "fcfs") {
+        for (auto p : m_processStream) {
+          cout << setw(11) << p[1] << setw(9) 
              << "|" << setw(7) << p[2] << setw(7) 
              << "|" << setw(7) << p[3] << setw(7) 
              << "|" << setw(7) << p[4] << "\n";
+        }
+      }
+      if (m_type == "rr") {
+        for (auto p : m_processStream) {
+          cout << setw(9) << p[1]<< setw(2) << "-" << setw(2) << p[0] << setw(7) 
+             << "|" << setw(7) << p[2] << setw(7) 
+             << "|" << setw(7) << p[3] << setw(7) 
+             << "|" << setw(7) << p[4] << "\n";
+        }
       }
     }
 };
@@ -116,12 +128,11 @@ void firstComeFirstServe(vector<Process> processes) {
   int duration = 0;
   for (auto process : fcfsProcesses) {
     duration = process.burstTime;
-    gant.push_back({time, 0, process.pid, duration, 0});
-    
     time += duration;
+    gant.push_back({0, time, process.pid, duration, 0});
   }
 
-  GantChart fcfsGantChart(gant);
+  GantChart fcfsGantChart(gant, "fcfs");
   fcfsGantChart.printChart();
 }
 
@@ -158,7 +169,7 @@ void roundRobbin(vector<Process> processes, int timeQuantum) {
     processQueue.erase(processQueue.begin());
   }
   
-  GantChart roundRobbinGantChart(display);
+  GantChart roundRobbinGantChart(display, "rr");
   roundRobbinGantChart.printChart();
 
 }
